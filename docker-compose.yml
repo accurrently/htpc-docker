@@ -60,7 +60,7 @@ services:
       - "kind=private-webapp" 
       - "traefik.frontend.rule=Host:deluge.${ROOT_DOMAIN}"
       - "traefik.port=8112"
-      - "trafeik.network=web"
+      - "traefik.docker.network=web"
     networks:
       - skynet
       - web
@@ -87,7 +87,7 @@ services:
       - "kind=private-webapp" 
       - "traefik.frontend.rule=Host:jackett.${ROOT_DOMAIN}"
       - "traefik.port=9117"
-      - "trafeik.network=web"
+      - "traefik.docker.network=web"
     networks:
       - web
       - cleartext
@@ -116,6 +116,7 @@ services:
       - "kind=private-webapp" 
       - "traefik.frontend.rule=Host:sonarr.${ROOT_DOMAIN}"
       - "traefik.port=8989"
+      - "traefik.docker.network=web"
     networks:
       - cleartext
       - web
@@ -144,6 +145,7 @@ services:
       - "kind=private-webapp" 
       - "traefik.frontend.rule=Host:radarr.${ROOT_DOMAIN}"
       - "traefik.port=7878"
+      - "traefik.docker.network=web"
     networks:
       - cleartext
       - web
@@ -171,6 +173,7 @@ services:
       - "kind=private-webapp" 
       - "traefik.frontend.rule=Host:lidarr.${ROOT_DOMAIN}"
       - "traefik.port=8686"
+      - "traefik.docker.network=web"
     networks:
       - cleartext
       - web
