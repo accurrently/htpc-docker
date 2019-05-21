@@ -70,6 +70,8 @@ services:
     container_name: jackett
     image: linuxserver/jackett:latest
     restart: unless-stopped
+    depends_on:
+      - deluge
     expose:
       - 9117
     environment:
@@ -100,6 +102,7 @@ services:
       - 8989
     depends_on:
       - nzbget
+      - jackett
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - config-sonarr:/config
@@ -129,6 +132,7 @@ services:
       - 7878
     depends_on:
       - nzbget
+      - jackett
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - config-radarr:/config
@@ -157,6 +161,7 @@ services:
       - 8686
     depends_on:
       - nzbget
+      - jackett
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - config-lidarr:/config
