@@ -15,6 +15,7 @@ services:
   # Newsgroup reader/downloader
   nzbget:
     image: linuxserver/nzbget
+    container_name: nzbget
     expose:
       - 6789
     volumes:
@@ -94,6 +95,7 @@ services:
   # Sonarr gets TV shows
   sonarr:
     image: linuxserver/sonarr
+    container_name: sonarr
     expose:
       - 8989
     depends_on:
@@ -121,6 +123,7 @@ services:
   # Radarr gets movies
   radarr:
     image: linuxserver/radarr
+    container_name: radarr
     expose:
       - 7878
     depends_on:
@@ -147,6 +150,7 @@ services:
   
   lidarr:
     image: linuxserver/lidarr
+    container_name: lidarr
     expose:
       - 8686
     depends_on:
