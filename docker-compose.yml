@@ -1,0 +1,172 @@
+version: '2'
+
+networks:
+  web:
+    external:
+      name: ${NET_TRAEFIK}
+  skynet:
+    external:
+      name: ${NET_SECURE}
+  cleartext:
+    external:
+      name: ${NET_CLEAR}
+      
+services:
+  # Newsgroup reader/downloader
+  nzbget:
+    image: linuxserver/nzbget
+    expose:
+      - 6789
+    volumes:
+      - config-nzbget:/config
+      - ${ROOT_DIR}/downloads:/downloads
+      - ${ROOT_DIR}/media:/media
+    environment:
+      - PGID=${PGID}
+      - PUID=${PUID}
+      - TZ=${TZ}
+    labels:
+      - "traefik.enable=true"
+      # Shouldn't need this, but let's keep it anyway.
+      - "traefik.frontend.whiteList.sourceRange=${IP_WHITELIST}"
+      - "kind=private-webapp" 
+      - "traefik.frontend.rule=Host:nzbget.${ROOT_DOMAIN}"
+      - "traefik.port=6789"
+      - "trafeik.network=web"
+    networks:
+      - skynet
+      - web
+  
+  # Torrents
+  deluge:
+    image: linuxserver/deluge
+    container_name: deluge
+    expose:
+      - 8112
+    environment:
+      - PGID=${PGID}
+      - PUID=${PUID}
+      - TZ=${TZ}
+      - UMASK_SET=<022>
+    volumes:
+      - config-deluge:/config
+      - ${ROOT_DIR}/downloads:/downloads
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      # Shouldn't need this, but let's keep it anyway.
+      - "traefik.frontend.whiteList.sourceRange=${IP_WHITELIST}"
+      - "kind=private-webapp" 
+      - "traefik.frontend.rule=Host:deluge.${ROOT_DOMAIN}"
+      - "traefik.port=8112"
+      - "trafeik.network=web"
+    networks:
+      - skynet
+      - web
+  
+  # Jackett
+  jackett:
+    container_name: jackett
+    image: linuxserver/jackett:latest
+    restart: unless-stopped
+    expose:
+      - 9117
+    environment:
+      - PUID=${PUID} # default user id, defined in .env
+      - PGID=${PGID} # default group id, defined in .env
+      - TZ=${TZ} # timezone, defined in .env
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${ROOT_DIR}/downloads/torrent-blackhole:/downloads # place where to put .torrent files for manual download
+      - config-jackett:/config # config files
+    labels:
+      - "traefik.enable=true"
+      # Shouldn't need this, but let's keep it anyway.
+      - "traefik.frontend.whiteList.sourceRange=${IP_WHITELIST}"
+      - "kind=private-webapp" 
+      - "traefik.frontend.rule=Host:jackett.${ROOT_DOMAIN}"
+      - "traefik.port=9117"
+      - "trafeik.network=web"
+    networks:
+      - web
+      - cleartext
+
+  # Sonarr gets TV shows
+  sonarr:
+    image: linuxserver/sonarr
+    expose:
+      - 8989
+    depends_on:
+      - nzbget
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - config-sonarr:/config
+      - ${ROOT_DIR}/media/tv:/tv
+      - ${ROOT_DIR}/downloads:/downloads
+    environment:
+      - PGID=${PGID}
+      - PUID=${PUID}
+      - TZ=${TZ}
+    labels:
+      - "traefik.enable=true"
+      # Shouldn't need this, but let's keep it anyway.
+      - "traefik.frontend.whiteList.sourceRange=${IP_WHITELIST}"
+      - "kind=private-webapp" 
+      - "traefik.frontend.rule=Host:sonarr.${ROOT_DOMAIN}"
+      - "traefik.port=8989"
+    networks:
+      - cleartext
+      - web
+      
+  # Radarr gets movies
+  radarr:
+    image: linuxserver/radarr
+    expose:
+      - 7878
+    depends_on:
+      - nzbget
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - config-radarr:/config
+      - ${ROOT_DIR}/media/movies:/movies
+      - ${ROOT_DIR}/downloads:/downloads
+    environment:
+      - PGID=${PGID}
+      - PUID=${PUID}
+      - TZ=${TZ}
+    labels:
+      - "traefik.enable=true"
+      # Shouldn't need this, but let's keep it anyway.
+      - "traefik.frontend.whiteList.sourceRange=${IP_WHITELIST}"
+      - "kind=private-webapp" 
+      - "traefik.frontend.rule=Host:radarr.${ROOT_DOMAIN}"
+      - "traefik.port=7878"
+    networks:
+      - cleartext
+      - web
+  
+  lidarr:
+    image: linuxserver/lidarr
+    expose:
+      - 8686
+    depends_on:
+      - nzbget
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - config-lidarr:/config
+      - ${ROOT_DIR}/media/music:/music
+      - ${ROOT_DIR}/downloads:/downloads
+    environment:
+      - PGID=${PGID}
+      - PUID=${PUID}
+      - TZ=${TZ}
+    labels:
+      - "traefik.enable=true"
+      # Shouldn't need this, but let's keep it anyway.
+      - "traefik.frontend.whiteList.sourceRange=${IP_WHITELIST}"
+      - "kind=private-webapp" 
+      - "traefik.frontend.rule=Host:lidarr.${ROOT_DOMAIN}"
+      - "traefik.port=8686"
+    networks:
+      - cleartext
+      - web
