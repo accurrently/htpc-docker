@@ -19,7 +19,7 @@ services:
     expose:
       - 6789
     volumes:
-      - config-nzbget:/config
+      - ${ROOT_CONFIG}/nzbget:/config
       - ${ROOT_DIR}/downloads:/downloads
       - ${ROOT_DIR}/media:/media
     environment:
@@ -50,7 +50,7 @@ services:
       - TZ=${TZ}
       - UMASK_SET=<022>
     volumes:
-      - config-deluge:/config
+      - ${ROOT_CONFIG}/deluge:/config
       - ${ROOT_DIR}/downloads:/downloads
     restart: unless-stopped
     labels:
@@ -81,7 +81,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ${ROOT_DIR}/downloads/torrent-blackhole:/downloads # place where to put .torrent files for manual download
-      - config-jackett:/config # config files
+      - ${ROOT_CONFIG}/jackett:/config # config files
     labels:
       - "traefik.enable=true"
       # Shouldn't need this, but let's keep it anyway.
@@ -105,7 +105,7 @@ services:
       - jackett
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - config-sonarr:/config
+      - ${ROOT_CONFIG}/sonarr:/config
       - ${ROOT_DIR}/media/tv:/tv
       - ${ROOT_DIR}/downloads:/downloads
     environment:
@@ -135,7 +135,7 @@ services:
       - jackett
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - config-radarr:/config
+      - ${ROOT_CONFIG}/radarr:/config
       - ${ROOT_DIR}/media/movies:/movies
       - ${ROOT_DIR}/downloads:/downloads
     environment:
@@ -164,7 +164,7 @@ services:
       - jackett
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - config-lidarr:/config
+      - ${ROOT_CONFIG}/lidarr:/config
       - ${ROOT_DIR}/media/music:/music
       - ${ROOT_DIR}/downloads:/downloads
     environment:
